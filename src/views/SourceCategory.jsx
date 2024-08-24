@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../../axios';
+import axios from '../axios';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../components/common/Navbar';
 
-const Region = () => {
+const SourceCategory = () => {
   const [roles, setRole] = useState([]);
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -66,7 +66,7 @@ const Region = () => {
     <div>
         <Navbar />
         <div className='container mt-3'>
-            <h1>Manage Region</h1>
+            <h1>Manage Revenue Source Category</h1>
             <Button className='my-2' variant="primary" onClick={() => setShow(true)}>
                 Add Role
             </Button>
@@ -134,4 +134,4 @@ const Region = () => {
   );
 };
 
-export default Region;
+export default SourceCategory;

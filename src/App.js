@@ -1,36 +1,34 @@
+// src/App.js
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import Dashboard from './components/dashboard/Dashboard';
-import Deposit from './components/deposit/Deposit';
-import User from './components/user/User';
-import Report from './components/report/Report';
-import NotFound from './components/views/NotFound';
-import PrivateRoute from './components/utils/PrivateRoute';
+import Login from './views/auth/Login';
+import Deposit from './views/Deposit';
+import User from './views/User';
+import Report from './views/Report';
+import NotFound from './components/common/NotFound';
+import PrivateRoute from './utils/PrivateRoute';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Role from './components/role/Role';
-import SourceCategory from './components/source-category/SourceCategory';
-import Region from './components/region/Region';
+import Role from './views/Role';
+import SourceCategory from './views/SourceCategory';
+import Region from './views/Region';
+import Dashboard from './views/Dashboard';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/deposit" element={<Deposit />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/role" element={<Role />} />
-        <Route path="/source-category" element={<SourceCategory />} />
-        <Route path="/region" element={<Region />} />
-        <Route path="/report" element={<Report />} />
-        {/* <Route path="/dashboard" element={<PrivateRoute />}>
-          <Route path="" element={<Dashboard />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />*/}
+
+        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+        <Route path="/deposit" element={<PrivateRoute element={<Deposit />} />} />
+        <Route path="/user" element={<PrivateRoute element={<User />} />} />
+        <Route path="/role" element={<PrivateRoute element={<Role />} />} />
+        <Route path="/source-category" element={<PrivateRoute element={<SourceCategory />} />} />
+        <Route path="/region" element={<PrivateRoute element={<Region />} />} />
+        <Route path="/report" element={<PrivateRoute element={<Report />} />} />
+
+        <Route path="*" element={<NotFound />} />
       </Routes> 
     </Router>
   );

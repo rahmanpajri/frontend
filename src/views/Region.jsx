@@ -1,53 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../../axios';
+import axios from '../axios';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../components/common/Navbar';
 
-const User = () => {
-  const [users, setUsers] = useState([]);
+const Region = () => {
+  const [roles, setRole] = useState([]);
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    fetchUsers();
+    fetchRole();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchRole = async () => {
     try {
-      const response = await axios.get('/users'); 
-      setUsers(response.data);
+      const response = await axios.get('/roles'); 
+      setRole(response.data);
     } catch (error) {
-      console.error('Error fetching users', error);
+      console.error('Error fetching roles', error);
     }
   };
 
   const handleSave = async () => {
     try {
       if (editMode) {
-        await axios.patch(`/users/${currentUser.id}`, currentUser);
+        await axios.patch(`/roles/${currentUser.id}`, currentUser);
       } else {
-        await axios.post('/users', currentUser);
+        await axios.post('/roles', currentUser);
       }
-      fetchUsers();
+      fetchRole();
       handleClose();
     } catch (error) {
-      console.error('Error saving user', error);
+      console.error('Error saving role', error);
     }
   };
 
-  const handleEdit = (user) => {
-    setCurrentUser(user);
+  const handleEdit = (role) => {
+    setCurrentUser(role);
     setEditMode(true);
     setShow(true);
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/users/${id}`);
-      fetchUsers();
+      await axios.delete(`/roles/${id}`);
+      fetchRole();
     } catch (error) {
-      console.error('Error deleting user', error);
+      console.error('Error deleting role', error);
     }
   };
 
@@ -66,28 +66,26 @@ const User = () => {
     <div>
         <Navbar />
         <div className='container mt-3'>
-            <h1>Manage User</h1>
+            <h1>Manage Region</h1>
             <Button className='my-2' variant="primary" onClick={() => setShow(true)}>
-                Add User
+                Add Role
             </Button>
             <Table striped bordered hover>
                 <thead>
                 <tr>
                     <th>No</th>
-                    <th>Full Name</th>
-                    <th>Username</th>
-                    <th>Actions</th>
+                    <th>Role Name</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                {users.map((user, index) => (
-                    <tr key={user.id}>
+                {roles.map((role, index) => (
+                    <tr key={role.id}>
                     <td>{index + 1}</td>
-                    <td>{user.fullName}</td>
-                    <td>{user.username}</td>
+                    <td>{role.name}</td>
                     <td>
-                        <Button variant="info" onClick={() => handleEdit(user)}>Edit</Button>
-                        <Button variant="danger" onClick={() => handleDelete(user.id)}>Delete</Button>
+                        <Button variant="info" onClick={() => handleEdit(role)}>Edit</Button>
+                        <Button variant="danger" onClick={() => handleDelete(role.id)}>Delete</Button>
                     </td>
                     </tr>
                 ))}
@@ -96,7 +94,7 @@ const User = () => {
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                <Modal.Title>{editMode ? 'Edit User' : 'Add User'}</Modal.Title>
+                <Modal.Title>{editMode ? 'Edit Role' : 'Add Role'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                 <Form>
@@ -136,4 +134,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default Region;

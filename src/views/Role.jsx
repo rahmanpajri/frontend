@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../../axios';
+import axios from '../axios';
 import { Table, Button, Modal, Form } from 'react-bootstrap';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../components/common/Navbar';
 
 const Role = () => {
   const [roles, setRole] = useState([]);

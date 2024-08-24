@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../navbar/Navbar';
+import Navbar from '../components/common/Navbar';
 import ReactECharts from 'echarts-for-react';
 
 const Dashboard = () => {

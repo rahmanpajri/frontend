@@ -1,7 +1,28 @@
+import axios from '../../axios';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post('/auth/logout', {}, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      localStorage.removeItem('token'); 
+      
+      navigate('/');
+      
+      console.log(response.data.message); 
+    } catch (error) {
+      console.error('Logout error:', error.response ? error.response.data : error.message);
+    }
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
       <div className="container-fluid">
@@ -36,6 +57,7 @@ const Navbar = () => {
               <NavLink className="nav-link" activeClassName="active" to="/report">Report</NavLink>
             </li>
           </ul>
+          <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>Logout </button>
         </div>
       </div>
     </nav>
