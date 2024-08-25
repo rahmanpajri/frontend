@@ -13,7 +13,7 @@ const User = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchRoles(); // Fetch roles when component mounts
+    fetchRoles(); 
   }, []);
 
   const fetchUsers = async () => {
@@ -46,7 +46,7 @@ const User = () => {
         username: currentUser.username,
         fullName: currentUser.fullName,
         password: currentUser.password,
-        roleId: parseInt(currentUser.role, 10)  // Convert role to integer
+        roleId: parseInt(currentUser.role, 10)
       };
 
       if (editMode) {
@@ -166,7 +166,7 @@ const User = () => {
               </Form.Group>
               <Form.Group controlId="formRole">
                 <Form.Label>Role</Form.Label>
-                <Form.Control as="select" name="role" value={currentUser?.role?.id || ''}onChange={handleRoleChange}
+                <Form.Control as="select" name="role" value={currentUser?.role?.id || ''}onChange={handleInputChange}
                 >
                   <option value="">Select Role</option>
                   {roles.map((role) => (

@@ -7,13 +7,17 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to dashboard if the user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/dashboard');
+      if(userRole==='AM PPN'){
+        navigate('/dashboard');
+      }else{
+        navigate('/deposit');
+      }
     }
   }, [navigate]);
 
@@ -30,7 +34,6 @@ function Login() {
         localStorage.setItem('token', response.data.access_token);
         localStorage.setItem('userRole', response.data.role.roleName);
         
-        const userRole = localStorage.getItem('userRole');
         if(userRole==='AM PPN'){
           navigate('/dashboard');
         }else{
@@ -50,6 +53,9 @@ function Login() {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={6} lg={4}>
+        <div className="d-flex justify-content-center mb-4">
+            <img src="/images/cisea.png" alt="Logo" width="200" height="200" className="img-fluid" />
+          </div>
           <h2 className="text-center mb-4">Login</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>

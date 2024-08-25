@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axios'; // Adjust the path as necessary
+import axios from '../axios'; 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import Navbar from '../components/common/Navbar';
 
@@ -48,37 +48,52 @@ const Source = () => {
     }
   };
 
-const handleSave = async () => {
-  try {
-    const processedAllocations = currentSource.allocations.map(allocation => ({
-      id: allocation.id || undefined, // Ensure allocation id is included
-      percentage: allocation.percentage,
-      region: { id: allocation.region?.id } // Ensure region id is included
-    }));
-
-    const sourceData = {
-      id: currentSource.id, // Ensure source id is included
-      sourceName: currentSource.sourceName,
-      categoryId: currentSource.category.id, // Ensure category id is included
-      allocations: processedAllocations
-    };
-
-    console.log("Source Data to Save:", sourceData);
-
-    if (editMode) {
-      await axios.put(`/sources/${currentSource.id}`, sourceData);
-    } else {
-      await axios.post('/sources', sourceData);
-    }
-    fetchSources();
-    handleClose();
-  } catch (error) {
-    console.error('Error saving source', error);
-  }
-};
-
+  const handleSave = async () => {
+    try {
+      const allocationsWithIds = await Promise.all(
+        currentSource.allocations.map(async (allocation) => {
+          if (!allocation.id) {
+            const response = await axios.post('/allocations', {
+              percentage: Number(allocation.percentage),
+              source: { id: Number(currentSource.id) },
+              region: { id: Number(allocation.region?.id) },
+            });
+            const newAllocation = response.data;
+            return {
+              id: newAllocation.id, // Use ID from response
+              percentage: Number(allocation.percentage),
+              region: { id: Number(allocation.region?.id) },
+            };
+          }
+          return {
+            id: allocation.id,
+            percentage: Number(allocation.percentage),
+            region: { id: Number(allocation.region?.id) },
+          };
+        })
+      );
   
-
+      const sourceData = {
+        id: currentSource.id,
+        sourceName: currentSource.sourceName,
+        categoryId: Number(currentSource.category.id), 
+        allocations: allocationsWithIds
+      };
+  
+      console.log("Source Data to Save:", sourceData);
+  
+      if (editMode) {
+        await axios.put(`/sources/${currentSource.id}`, sourceData);
+      } else {
+        await axios.post('/sources', sourceData);
+      }
+      fetchSources();
+      handleClose();
+    } catch (error) {
+      console.error('Error saving source', error);
+    }
+  };
+  
   const handleEdit = (source) => {
     setCurrentSource({
       ...source,
@@ -89,11 +104,18 @@ const handleSave = async () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this source?');
+    if (!confirmDelete) return;
+
     try {
       await axios.delete(`/sources/${id}`);
       fetchSources();
     } catch (error) {
-      console.error('Error deleting source', error);
+      if (error.response && error.response.status === 500) {
+        alert('Cannot delete source because it is used by one or more roles.');
+      } else {
+        console.error('Error deleting source', error);
+      }
     }
   };
 
@@ -188,8 +210,8 @@ const handleSave = async () => {
                   ))}
                 </td>
                 <td>
-                  <Button variant="info" onClick={() => handleEdit(source)}>Edit</Button>
-                  <Button variant="danger" onClick={() => handleDelete(source.id)}>Delete</Button>
+                  <Button className='mx-1' variant="info" onClick={() => handleEdit(source)}>Edit</Button>
+                  <Button className='mx-1' variant="danger" onClick={() => handleDelete(source.id)}>Delete</Button>
                 </td>
               </tr>
             ))}
@@ -252,12 +274,12 @@ const handleSave = async () => {
                       ))}
                     </Form.Control>
                   </Form.Group>
-                  <Button variant="danger" onClick={() => removeAllocation(index)}>
+                  <Button className='my-1' variant="danger" onClick={() => removeAllocation(index)}>
                     Remove Allocation
                   </Button>
                 </div>
               ))}
-              <Button variant="secondary" onClick={addAllocation}>
+              <Button className='my-1' variant="secondary" onClick={addAllocation}>
                 Add Allocation
               </Button>
             </Form>

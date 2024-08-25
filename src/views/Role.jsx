@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axios'; // Adjust the path as necessary
+import axios from '../axios'; 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import Navbar from '../components/common/Navbar';
 
 const Role = () => {
   const [roles, setRoles] = useState([]);
-  const [sources, setSources] = useState([]); // State to hold sources
+  const [sources, setSources] = useState([]); 
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentRole, setCurrentRole] = useState({ roleName: '', sourceId: '' });
@@ -13,7 +13,7 @@ const Role = () => {
 
   useEffect(() => {
     fetchRoles();
-    fetchSources(); // Fetch sources on component mount
+    fetchSources(); 
   }, []);
 
   const fetchRoles = async () => {
@@ -45,12 +45,12 @@ const Role = () => {
       if (editMode) {
         await axios.put(`/roles/${currentRole.id}`, {
           roleName: currentRole.roleName,
-          sourceId: currentRole.sourceId // Ensure sourceId is passed
+          sourceId: currentRole.sourceId 
         });
       } else {
         await axios.post('/roles', {
           roleName: currentRole.roleName,
-          sourceId: currentRole.sourceId // Ensure sourceId is passed
+          sourceId: currentRole.sourceId 
         });
       }
       fetchRoles();

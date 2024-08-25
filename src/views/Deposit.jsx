@@ -6,24 +6,29 @@ import Navbar from '../components/common/Navbar';
 const Deposit = () => {
   const userRole = localStorage.getItem('userRole');
   const [deposits, setDeposits] = useState([]);
+  const [filteredDeposits, setFilteredDeposits] = useState([]);
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentDeposit, setCurrentDeposit] = useState({
-    month: '',
-    year: '',
-    amount: '',
-    source: { id: '', sourceName: '' },
-  });
-  const [sources, setSources] = useState([]); // New state for sources
+  const [currentDeposit, setCurrentDeposit] = useState({month: '',year: '',amount: '',source: { id: '', sourceName: '' },});
+  const [sources, setSources] = useState([]);
   const [userSources, setUserSources] = useState(null);
-  const [isRoleAMPPN, setIsRoleAMPPN] = useState(false); // New state for role check
+  const [isRoleAMPPN, setIsRoleAMPPN] = useState(false);
+  const [selectedYear, setSelectedYear] = useState('');
 
   useEffect(() => {
-    fetchDeposits();
-    fetchSources(); // Fetch sources for dropdown
-    fetchUserSources();
-    checkUserRole(); // Check if the role is 'AM PPN'
-  }, []);
+    const fetchData = async () => {
+      await fetchUserSources();
+      await fetchDeposits();
+      await fetchSources();
+      checkUserRole();
+    };
+
+    fetchData();
+}, []);
+
+  useEffect(() => {
+    filterDepositsByYear();
+  }, [deposits, selectedYear]);
 
   const fetchSources = async () => {
     try {
@@ -37,7 +42,7 @@ const Deposit = () => {
   const fetchUserSources = async () => {
     try {
       const response = await axios.get(`/roles/${userRole}/source`);
-      setUserSources(response.data)
+      setUserSources(response.data);
     } catch (error) {
       console.error('Error fetching user sources', error);
     }
@@ -46,17 +51,30 @@ const Deposit = () => {
   const fetchDeposits = async () => {
     try {
       const response = await axios.get('/deposits');
-      setDeposits(response.data);
+
+      if (userRole === 'AM PPN') {
+        setDeposits(response.data);
+      } else {
+        const filtered = response.data.filter(deposit =>
+          deposit.source && deposit.source.id === userSources?.id
+        );
+        setDeposits(filtered);
+      }
     } catch (error) {
       console.error('Error fetching deposits', error);
     }
   };
 
   const checkUserRole = () => {
-    if (userRole === 'AM PPN') {
-      setIsRoleAMPPN(true);
+    setIsRoleAMPPN(userRole === 'AM PPN');
+  };
+
+  const filterDepositsByYear = () => {
+    if (selectedYear) {
+      const filtered = deposits.filter(deposit => deposit.year === parseInt(selectedYear, 10));
+      setFilteredDeposits(filtered);
     } else {
-      setIsRoleAMPPN(false);
+      setFilteredDeposits(deposits);
     }
   };
 
@@ -66,10 +84,8 @@ const Deposit = () => {
         month: parseInt(currentDeposit.month, 10),
         year: parseInt(currentDeposit.year, 10),
         amount: parseFloat(currentDeposit.amount),
-        source: currentDeposit.source, // Use the selected source
+        source: currentDeposit.source,
       };
-
-      console.log('Saving deposit with data:', formattedDeposit);
 
       if (editMode) {
         await axios.put(`/deposits/${currentDeposit.id}`, formattedDeposit);
@@ -77,7 +93,7 @@ const Deposit = () => {
         await axios.post('/deposits', formattedDeposit);
       }
 
-      fetchDeposits();
+      fetchDeposits(); 
       handleClose();
     } catch (error) {
       console.error('Error saving deposit', error);
@@ -91,6 +107,9 @@ const Deposit = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this deposit?');
+    if (!confirmDelete) return;
+
     try {
       await axios.delete(`/deposits/${id}`);
       fetchDeposits();
@@ -112,7 +131,25 @@ const Deposit = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentDeposit({ ...currentDeposit, [name]: value });
+    if (name === 'source') {
+      setCurrentDeposit({ ...currentDeposit, source: { id: value } });
+    } else {
+      setCurrentDeposit({ ...currentDeposit, [name]: value });
+    }
+  };
+
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
+  };
+
+
+  const generateYears = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = 2000; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years;
   };
 
   return (
@@ -120,33 +157,42 @@ const Deposit = () => {
       <Navbar />
       <div className="container mt-3">
         <h1>Deposit</h1>
+        <Form.Group controlId="formYearFilter">
+          <Form.Label>Filter by Year</Form.Label>
+          <Form.Control as="select" value={selectedYear} onChange={handleYearChange}>
+            <option value="">All Years</option>
+            {generateYears().map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </Form.Control>
+        </Form.Group>
         <Button className="my-2" variant="primary" onClick={() => setShow(true)}>
           Add Deposit
         </Button>
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>ID</th>
+              <th>No</th>
               <th>Amount</th>
               <th>Month</th>
               <th>Year</th>
-              <th></th>
+              <th>Source</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {deposits.map((deposit) => (
+            {filteredDeposits.map((deposit, index) => (
               <tr key={deposit.id}>
-                <td>{deposit.id}</td>
+                <td>{index + 1}</td>
                 <td>{deposit.amount}</td>
                 <td>{deposit.month}</td>
                 <td>{deposit.year}</td>
                 <td>{deposit.source ? deposit.source.sourceName : 'N/A'}</td>
                 <td>
-                  <Button variant="info" onClick={() => handleEdit(deposit)}>
+                  <Button className='mx-1' variant="info" onClick={() => handleEdit(deposit)}>
                     Edit
                   </Button>
-                  <Button variant="danger" onClick={() => handleDelete(deposit.id)}>
+                  <Button className='mx-1' variant="danger" onClick={() => handleDelete(deposit.id)}>
                     Delete
                   </Button>
                 </td>
@@ -197,9 +243,9 @@ const Deposit = () => {
                 <Form.Control
                   as="select"
                   name="source"
-                  value={currentDeposit.source.id} // Display selected source ID
+                  value={currentDeposit.source.id}
                   onChange={handleInputChange}
-                  disabled={editMode} // Conditionally disable based on role
+                  disabled={editMode}
                 >
                   <option value="">Select a source</option>
                   {isRoleAMPPN ? (
@@ -209,11 +255,7 @@ const Deposit = () => {
                       </option>
                     ))
                   ) : (
-                    userSources && (
-                      <option key={userSources.id} value={userSources.id}>
-                        {userSources.sourceName}
-                      </option>
-                    )
+                    userSources && <option value={userSources.id}>{userSources.sourceName}</option>
                   )}
                 </Form.Control>
               </Form.Group>
