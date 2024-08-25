@@ -26,8 +26,18 @@ function Login() {
           username,
           password,
         });
+
         localStorage.setItem('token', response.data.access_token);
-        navigate('/dashboard');
+        localStorage.setItem('userRole', response.data.role.roleName);
+        
+        const userRole = localStorage.getItem('userRole');
+        if(userRole==='AM PPN'){
+          navigate('/dashboard');
+        }else{
+          navigate('/deposit');
+        }
+
+        
       } catch (err) {
         setError('Invalid credentials or server error');
       }

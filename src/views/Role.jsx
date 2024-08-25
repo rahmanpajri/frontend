@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axios'; // Pastikan path import ini benar sesuai dengan struktur proyek Anda
+import axios from '../axios'; // Adjust the path as necessary
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 import Navbar from '../components/common/Navbar';
 
 const Role = () => {
   const [roles, setRoles] = useState([]);
+  const [sources, setSources] = useState([]); // State to hold sources
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentRole, setCurrentRole] = useState({ roleName: '' });
+  const [currentRole, setCurrentRole] = useState({ roleName: '', sourceId: '' });
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchRoles();
+    fetchSources(); // Fetch sources on component mount
   }, []);
 
   const fetchRoles = async () => {
@@ -23,18 +25,33 @@ const Role = () => {
     }
   };
 
+  const fetchSources = async () => {
+    try {
+      const response = await axios.get('/sources');
+      setSources(response.data);
+    } catch (error) {
+      console.error('Error fetching sources', error);
+    }
+  };
+
   const handleSave = async () => {
     if (!currentRole.roleName.trim()) {
       setError('Role name cannot be empty.');
       return;
     }
-
+  
     try {
       setError('');
       if (editMode) {
-        await axios.put(`/roles/${currentRole.id}`, { roleName: currentRole.roleName });
+        await axios.put(`/roles/${currentRole.id}`, {
+          roleName: currentRole.roleName,
+          sourceId: currentRole.sourceId // Ensure sourceId is passed
+        });
       } else {
-        await axios.post('/roles', { roleName: currentRole.roleName });
+        await axios.post('/roles', {
+          roleName: currentRole.roleName,
+          sourceId: currentRole.sourceId // Ensure sourceId is passed
+        });
       }
       fetchRoles();
       handleClose();
@@ -42,7 +59,7 @@ const Role = () => {
       console.error('Error saving role', error);
       setError('Failed to save the role. Please try again.');
     }
-  };
+  };  
 
   const handleEdit = (role) => {
     setCurrentRole(role);
@@ -66,7 +83,7 @@ const Role = () => {
   const handleClose = () => {
     setShow(false);
     setEditMode(false);
-    setCurrentRole({ roleName: '' });
+    setCurrentRole({ roleName: '', sourceId: '' });
     setError('');
   };
 
@@ -88,6 +105,7 @@ const Role = () => {
             <tr>
               <th>No</th>
               <th>Role Name</th>
+              <th>Source</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -96,6 +114,7 @@ const Role = () => {
               <tr key={role.id}>
                 <td>{index + 1}</td>
                 <td>{role.roleName}</td>
+                <td>{role.source?.sourceName || 'N/A'}</td>
                 <td>
                   <Button className='mx-1' variant="info" onClick={() => handleEdit(role)}>Edit</Button>
                   <Button className='mx-1' variant="danger" onClick={() => handleDelete(role.id)}>Delete</Button>
@@ -121,6 +140,22 @@ const Role = () => {
                   value={currentRole.roleName}
                   onChange={handleInputChange}
                 />
+              </Form.Group>
+              <Form.Group controlId="formSource">
+                <Form.Label>Source</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="sourceId"
+                  value={currentRole.sourceId || ''}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Source</option>
+                  {sources.map((source) => (
+                    <option key={source.id} value={source.id}>
+                      {source.sourceName}
+                    </option>
+                  ))}
+                </Form.Control>
               </Form.Group>
             </Form>
           </Modal.Body>

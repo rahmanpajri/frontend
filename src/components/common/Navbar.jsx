@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('userRole');
 
   const handleLogout = async () => {
     try {
@@ -35,29 +36,40 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/dashboard">Dashboard</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/deposit">Deposit</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/user">User</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/role">Role</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/source">Revenue Source</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/region">Region</NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" activeClassName="active" to="/report">Report</NavLink>
-            </li>
+            {userRole === 'AM PPN' && (
+              <>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/dashboard">Dashboard</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/deposit">Deposit</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/user">User</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/role">Role</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/source">Revenue Source</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/region">Region</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/report">Report</NavLink>
+                </li>
+              </>
+            )}
+            {userRole !== 'AM PPN' && (
+              <>
+                <li className="nav-item">
+                  <NavLink className="nav-link" activeClassName="active" to="/deposit">Deposit</NavLink>
+                </li>
+              </>
+            )}
           </ul>
-          <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>Logout </button>
+          <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>Logout</button>
         </div>
       </div>
     </nav>
