@@ -35,8 +35,8 @@ const User = () => {
   };
 
   const handleSave = async () => {
-    if (currentUser.username.length !== 10) {
-      setError('Username must be exactly 10 digits long.');
+    if (!/^\d{10}$/.test(currentUser.username)) {
+      setError('Username must be exactly 10 digits long and contain only numbers.');
       return;
     }
 
@@ -76,12 +76,11 @@ const User = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    if (!confirmDelete) return;
+
     try {
-      await axios.delete(`/users/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await axios.delete(`/users/${id}`,);
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user', error);

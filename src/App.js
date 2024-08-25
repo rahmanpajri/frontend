@@ -10,9 +10,9 @@ import NotFound from './components/common/NotFound';
 import PrivateRoute from './utils/PrivateRoute';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Role from './views/Role';
-import SourceCategory from './views/SourceCategory';
 import Region from './views/Region';
 import Dashboard from './views/Dashboard';
+import Source from './views/Source';
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
         <Route path="/deposit" element={<PrivateRoute element={<Deposit />} />} />
         <Route path="/user" element={<PrivateRoute element={<User />} />} />
         <Route path="/role" element={<PrivateRoute element={<Role />} />} />
-        <Route path="/source-category" element={<PrivateRoute element={<SourceCategory />} />} />
+        <Route path="/source" element={<PrivateRoute element={<Source />} />} />
         <Route path="/region" element={<PrivateRoute element={<Region />} />} />
         <Route path="/report" element={<PrivateRoute element={<Report />} />} />
 
